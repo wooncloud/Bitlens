@@ -23,45 +23,74 @@ export class PixelConverter {
     imageFile: File,
     options: ConversionOptions
   ): Promise<string> {
-    const img = await this.loadImage(imageFile);
+    const { img, cleanup } = await this.loadImage(imageFile);
 
-    // Step 1: Downscale to target resolution
-    const downscaled = this.downscale(img, options.resolution);
+    try {
+      // Step 1: Downscale to target resolution
+      const downscaled = this.downscale(img, options.resolution);
 
-    // Step 2: Apply palette mapping
-    const pixelated = this.applyPalette(downscaled, options.palette);
+      // Step 2: Apply palette mapping
+      const pixelated = this.applyPalette(downscaled, options.palette);
 
-    return pixelated;
+      return pixelated;
+    } finally {
+      // Cleanup to prevent memory leak
+      cleanup();
+    }
   }
 
   /**
-   * Load image from file
+   * Load image from file with cleanup function
    */
-  private loadImage(file: File): Promise<HTMLImageElement> {
+  private loadImage(file: File): Promise<{ img: HTMLImageElement; cleanup: () => void }> {
     return new Promise((resolve, reject) => {
+      const objectUrl = URL.createObjectURL(file);
       const img = new Image();
-      img.onload = () => resolve(img);
-      img.onerror = reject;
-      img.src = URL.createObjectURL(file);
+
+      img.onload = () => {
+        resolve({
+          img,
+          cleanup: () => URL.revokeObjectURL(objectUrl),
+        });
+      };
+      img.onerror = () => {
+        URL.revokeObjectURL(objectUrl);
+        reject(new Error('Failed to load image'));
+      };
+      img.src = objectUrl;
     });
+  }
+
+  /**
+   * Calculate dimensions while maintaining aspect ratio
+   */
+  private calculateDimensions(
+    originalWidth: number,
+    originalHeight: number,
+    targetSize: number
+  ): { width: number; height: number } {
+    const aspectRatio = originalWidth / originalHeight;
+
+    if (aspectRatio > 1) {
+      // Landscape
+      return {
+        width: targetSize,
+        height: Math.round(targetSize / aspectRatio),
+      };
+    } else {
+      // Portrait or square
+      return {
+        width: Math.round(targetSize * aspectRatio),
+        height: targetSize,
+      };
+    }
   }
 
   /**
    * Downscale image to target resolution while maintaining aspect ratio
    */
   private downscale(img: HTMLImageElement, targetSize: number): ImageData {
-    const aspectRatio = img.width / img.height;
-    let width: number, height: number;
-
-    if (aspectRatio > 1) {
-      // Landscape
-      width = targetSize;
-      height = Math.round(targetSize / aspectRatio);
-    } else {
-      // Portrait or square
-      height = targetSize;
-      width = Math.round(targetSize * aspectRatio);
-    }
+    const { width, height } = this.calculateDimensions(img.width, img.height, targetSize);
 
     this.canvas.width = width;
     this.canvas.height = height;
@@ -105,17 +134,7 @@ export class PixelConverter {
    */
   async upscaleForDownload(dataUrl: string, targetSize: number = 1080): Promise<string> {
     const img = await this.loadImageFromDataUrl(dataUrl);
-
-    const aspectRatio = img.width / img.height;
-    let width: number, height: number;
-
-    if (aspectRatio > 1) {
-      width = targetSize;
-      height = Math.round(targetSize / aspectRatio);
-    } else {
-      height = targetSize;
-      width = Math.round(targetSize * aspectRatio);
-    }
+    const { width, height } = this.calculateDimensions(img.width, img.height, targetSize);
 
     // Create new canvas for upscaled image
     const upscaleCanvas = document.createElement('canvas');
