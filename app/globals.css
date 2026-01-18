@@ -1,0 +1,45 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #212529;
+  --foreground: #f8f9fa;
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: 'Press Start 2P', cursive;
+  image-rendering: pixelated;
+}
+
+/* Override NES.css container to allow larger widths */
+.nes-container {
+  margin: 1rem;
+}
+
+/* Pixelated image rendering */
+.pixelated {
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+}
+
+/* Custom scrollbar for retro feel */
+::-webkit-scrollbar {
+  width: 16px;
+}
+
+::-webkit-scrollbar-track {
+  background: #212529;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border: 2px solid #212529;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
