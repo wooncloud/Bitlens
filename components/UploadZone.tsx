@@ -1,3 +1,5 @@
+'use client';
+
 import { useRef, useState } from 'react';
 
 interface UploadZoneProps {
@@ -8,15 +10,19 @@ export default function UploadZone({ onFileSelect }: UploadZoneProps) {
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      if (!file.type.startsWith('image/')) {
-        alert('Please select an image file');
-        return;
-      }
-      onFileSelect(file);
+  const validateAndSelectFile = (file: File | undefined) => {
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      alert('Please select an image file');
+      return;
     }
+
+    onFileSelect(file);
+  };
+
+  const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    validateAndSelectFile(e.target.files?.[0]);
   };
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -32,15 +38,7 @@ export default function UploadZone({ onFileSelect }: UploadZoneProps) {
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(false);
-
-    const file = e.dataTransfer.files[0];
-    if (file) {
-      if (!file.type.startsWith('image/')) {
-        alert('Please select an image file');
-        return;
-      }
-      onFileSelect(file);
-    }
+    validateAndSelectFile(e.dataTransfer.files[0]);
   };
 
   return (
