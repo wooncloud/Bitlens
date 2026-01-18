@@ -1,6 +1,6 @@
 export type Resolution = 64 | 128 | 256;
 
-export type PaletteType = 'classic-grey' | 'gameboy' | 'nes' | 'cyberpunk' | 'vaporwave';
+export type PaletteType = 'classic-grey' | 'gameboy' | 'retro-32' | 'retro-64' | 'retro-256';
 
 export interface RGB {
   r: number;

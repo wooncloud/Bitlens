@@ -1,5 +1,26 @@
 import { RGB, PaletteType } from './types';
 
+/**
+ * Generate a palette by uniformly dividing RGB color space
+ */
+function generateUniformPalette(rSteps: number, gSteps: number, bSteps: number): RGB[] {
+  const palette: RGB[] = [];
+
+  for (let r = 0; r < rSteps; r++) {
+    for (let g = 0; g < gSteps; g++) {
+      for (let b = 0; b < bSteps; b++) {
+        palette.push({
+          r: Math.round((r * 255) / (rSteps - 1)),
+          g: Math.round((g * 255) / (gSteps - 1)),
+          b: Math.round((b * 255) / (bSteps - 1)),
+        });
+      }
+    }
+  }
+
+  return palette;
+}
+
 // Color palettes for retro effects
 export const PALETTES: Record<PaletteType, RGB[]> = {
   // Classic 4-level grayscale (Game Boy style without green tint)
@@ -18,40 +39,14 @@ export const PALETTES: Record<PaletteType, RGB[]> = {
     { r: 224, g: 248, b: 208 },   // Lightest - #e0f8d0
   ],
 
-  // NES / Famicom - 8-bit primary colors
-  'nes': [
-    { r: 0, g: 0, b: 0 },         // Black
-    { r: 255, g: 255, b: 255 },   // White
-    { r: 255, g: 0, b: 0 },       // Red
-    { r: 0, g: 0, b: 255 },       // Blue
-    { r: 255, g: 255, b: 0 },     // Yellow
-    { r: 0, g: 255, b: 0 },       // Green
-    { r: 255, g: 0, b: 255 },     // Magenta
-    { r: 0, g: 255, b: 255 },     // Cyan
-  ],
+  // 32-color palette (4x4x2 RGB uniform distribution)
+  'retro-32': generateUniformPalette(4, 4, 2),
 
-  // Cyberpunk Night - 16-bit neon aesthetics
-  'cyberpunk': [
-    { r: 0, g: 0, b: 0 },         // Black
-    { r: 45, g: 27, b: 78 },      // Dark purple - #2d1b4e
-    { r: 138, g: 43, b: 226 },    // Bright purple
-    { r: 255, g: 0, b: 255 },     // Magenta - #ff00ff
-    { r: 0, g: 255, b: 255 },     // Cyan - #00ffff
-    { r: 255, g: 128, b: 0 },     // Orange - #ff8000
-    { r: 255, g: 255, b: 0 },     // Yellow - #ffff00
-    { r: 255, g: 20, b: 147 },    // Deep pink
-    { r: 57, g: 255, b: 20 },     // Neon green
-    { r: 255, g: 255, b: 255 },   // White
-  ],
+  // 64-color palette (4x4x4 RGB uniform distribution)
+  'retro-64': generateUniformPalette(4, 4, 4),
 
-  // Vaporwave - Dreamy pastel aesthetics
-  'vaporwave': [
-    { r: 255, g: 113, b: 206 },   // Pink - #ff71ce
-    { r: 1, g: 205, b: 254 },     // Sky blue - #01cdfe
-    { r: 5, g: 255, b: 161 },     // Mint green - #05ffa1
-    { r: 185, g: 103, b: 255 },   // Purple - #b967ff
-    { r: 255, g: 251, b: 150 },   // Yellow - #fffb96
-  ],
+  // 256-color palette (8x8x4 RGB uniform distribution)
+  'retro-256': generateUniformPalette(8, 8, 4),
 };
 
 // Find the closest color in a palette using Euclidean distance
