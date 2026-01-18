@@ -12,9 +12,10 @@ interface PaletteOption {
 
 const PALETTE_OPTIONS: PaletteOption[] = [
   { value: 'classic-grey', label: 'Classic Grey' },
-  { value: 'greenish', label: 'Greenish' },
+  { value: 'gameboy', label: 'Game Boy' },
+  { value: 'nes', label: 'NES 8-Bit' },
   { value: 'cyberpunk', label: 'Cyberpunk' },
-  { value: 'nostalgia', label: 'Nostalgia' },
+  { value: 'vaporwave', label: 'Vaporwave' },
 ];
 
 export default function PaletteSelector({ value, onChange }: PaletteSelectorProps) {

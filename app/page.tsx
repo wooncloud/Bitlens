@@ -12,7 +12,7 @@ export default function Home() {
   const [previewUrl, setPreviewUrl] = useState<string>('');
   const [pixelatedUrl, setPixelatedUrl] = useState<string>('');
   const [resolution, setResolution] = useState<Resolution>(128);
-  const [palette, setPalette] = useState<PaletteType>('cyberpunk');
+  const [palette, setPalette] = useState<PaletteType>('classic-grey');
   const [isProcessing, setIsProcessing] = useState(false);
   const converterRef = useRef<PixelConverter | null>(null);
 
@@ -47,6 +47,11 @@ export default function Home() {
   }, [selectedFile, processImage]);
 
   const handleFileSelect = (file: File) => {
+    // Cleanup previous preview URL to prevent memory leak
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl);
+    }
+
     setSelectedFile(file);
     const objectUrl = URL.createObjectURL(file);
     setPreviewUrl(objectUrl);
