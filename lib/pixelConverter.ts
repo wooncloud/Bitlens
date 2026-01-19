@@ -29,8 +29,8 @@ export class PixelConverter {
       // Step 1: Downscale to target resolution
       const downscaled = this.downscale(img, options.resolution);
 
-      // Step 2: Apply palette mapping
-      const pixelated = this.applyPalette(downscaled, options.palette);
+      // Step 2: Apply palette mapping (with optional dithering)
+      const pixelated = this.applyPalette(downscaled, options.palette, options.dithering);
 
       return pixelated;
     } finally {
@@ -100,26 +100,66 @@ export class PixelConverter {
   }
 
   /**
-   * Apply color palette to image data
+   * Apply color palette to image data (with optional Floyd-Steinberg dithering)
    */
-  private applyPalette(imageData: ImageData, paletteType: string): string {
+  private applyPalette(imageData: ImageData, paletteType: string, ditheringLevel: string): string {
     const palette = PALETTES[paletteType as keyof typeof PALETTES];
     const data = imageData.data;
+    const width = imageData.width;
+    const height = imageData.height;
 
-    // Map each pixel to closest palette color
-    for (let i = 0; i < data.length; i += 4) {
-      const color: RGB = {
-        r: data[i],
-        g: data[i + 1],
-        b: data[i + 2],
-      };
+    if (ditheringLevel !== 'none') {
+      // Determine dithering strength
+      const strength = ditheringLevel === 'low' ? 0.5 : 1.0;
 
-      const closestColor = findClosestColor(color, palette);
+      // Floyd-Steinberg dithering with adjustable strength
+      for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+          const i = (y * width + x) * 4;
 
-      data[i] = closestColor.r;
-      data[i + 1] = closestColor.g;
-      data[i + 2] = closestColor.b;
-      // Keep alpha channel (data[i + 3]) unchanged
+          const oldColor: RGB = {
+            r: data[i],
+            g: data[i + 1],
+            b: data[i + 2],
+          };
+
+          const newColor = findClosestColor(oldColor, palette);
+
+          data[i] = newColor.r;
+          data[i + 1] = newColor.g;
+          data[i + 2] = newColor.b;
+
+          // Calculate quantization error
+          const errorR = oldColor.r - newColor.r;
+          const errorG = oldColor.g - newColor.g;
+          const errorB = oldColor.b - newColor.b;
+
+          // Distribute error to neighboring pixels with strength multiplier
+          // Right pixel (x+1, y): 7/16
+          this.distributeError(data, x + 1, y, width, height, errorR, errorG, errorB, (7 / 16) * strength);
+          // Bottom-left pixel (x-1, y+1): 3/16
+          this.distributeError(data, x - 1, y + 1, width, height, errorR, errorG, errorB, (3 / 16) * strength);
+          // Bottom pixel (x, y+1): 5/16
+          this.distributeError(data, x, y + 1, width, height, errorR, errorG, errorB, (5 / 16) * strength);
+          // Bottom-right pixel (x+1, y+1): 1/16
+          this.distributeError(data, x + 1, y + 1, width, height, errorR, errorG, errorB, (1 / 16) * strength);
+        }
+      }
+    } else {
+      // Simple palette mapping without dithering
+      for (let i = 0; i < data.length; i += 4) {
+        const color: RGB = {
+          r: data[i],
+          g: data[i + 1],
+          b: data[i + 2],
+        };
+
+        const closestColor = findClosestColor(color, palette);
+
+        data[i] = closestColor.r;
+        data[i + 1] = closestColor.g;
+        data[i + 2] = closestColor.b;
+      }
     }
 
     // Put the modified data back
@@ -127,6 +167,28 @@ export class PixelConverter {
 
     // Return data URL
     return this.canvas.toDataURL('image/png');
+  }
+
+  /**
+   * Distribute quantization error to neighboring pixel (Floyd-Steinberg)
+   */
+  private distributeError(
+    data: Uint8ClampedArray,
+    x: number,
+    y: number,
+    width: number,
+    height: number,
+    errorR: number,
+    errorG: number,
+    errorB: number,
+    factor: number
+  ): void {
+    if (x < 0 || x >= width || y < 0 || y >= height) return;
+
+    const i = (y * width + x) * 4;
+    data[i] = Math.max(0, Math.min(255, data[i] + errorR * factor));
+    data[i + 1] = Math.max(0, Math.min(255, data[i + 1] + errorG * factor));
+    data[i + 2] = Math.max(0, Math.min(255, data[i + 2] + errorB * factor));
   }
 
   /**

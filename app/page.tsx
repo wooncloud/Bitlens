@@ -2,10 +2,11 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { PixelConverter } from '@/lib/pixelConverter';
-import { Resolution, PaletteType } from '@/lib/types';
+import { Resolution, PaletteType, DitheringLevel } from '@/lib/types';
 import UploadZone from '@/components/UploadZone';
 import ResolutionSelector from '@/components/ResolutionSelector';
 import PaletteSelector from '@/components/PaletteSelector';
+import DitheringSelector from '@/components/DitheringSelector';
 
 export default function Home() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -13,6 +14,7 @@ export default function Home() {
   const [pixelatedUrl, setPixelatedUrl] = useState<string>('');
   const [resolution, setResolution] = useState<Resolution>(128);
   const [palette, setPalette] = useState<PaletteType>('classic-grey');
+  const [dithering, setDithering] = useState<DitheringLevel>('none');
   const [isProcessing, setIsProcessing] = useState(false);
   const converterRef = useRef<PixelConverter | null>(null);
 
@@ -21,7 +23,7 @@ export default function Home() {
     converterRef.current = new PixelConverter();
   }, []);
 
-  // Process image whenever file, resolution, or palette changes
+  // Process image whenever file, resolution, palette, or dithering changes
   const processImage = useCallback(async () => {
     if (!selectedFile || !converterRef.current) return;
 
@@ -30,6 +32,7 @@ export default function Home() {
       const result = await converterRef.current.convertImage(selectedFile, {
         resolution,
         palette,
+        dithering,
       });
       setPixelatedUrl(result);
     } catch (error) {
@@ -38,7 +41,7 @@ export default function Home() {
     } finally {
       setIsProcessing(false);
     }
-  }, [selectedFile, resolution, palette]);
+  }, [selectedFile, resolution, palette, dithering]);
 
   useEffect(() => {
     if (selectedFile && converterRef.current) {
@@ -104,6 +107,7 @@ export default function Home() {
             <div className="lg:col-span-1">
               <ResolutionSelector value={resolution} onChange={setResolution} />
               <PaletteSelector value={palette} onChange={setPalette} />
+              <DitheringSelector value={dithering} onChange={setDithering} />
 
               <button
                 className="nes-btn is-success w-full text-xs mb-4"
@@ -122,7 +126,7 @@ export default function Home() {
             <div className="lg:col-span-2">
               <div className="nes-container is-rounded with-title">
                 <p className="title text-xs">Preview</p>
-                <div className="flex justify-center items-center min-h-[400px] bg-black/20 rounded p-4">
+                <div className="flex justify-center items-center h-[400px] md:h-[600px] bg-black/20 rounded p-4">
                   {isProcessing ? (
                     <div className="text-center">
                       <p className="text-xs mb-2">Processing...</p>
@@ -132,7 +136,7 @@ export default function Home() {
                     <img
                       src={pixelatedUrl}
                       alt="Pixelated preview"
-                      className="pixelated max-w-full max-h-[600px] object-contain"
+                      className="pixelated w-full h-full object-contain"
                     />
                   ) : (
                     <p className="text-xs text-gray-400">Processing your image...</p>
