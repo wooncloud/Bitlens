@@ -90,7 +90,7 @@ export default function Home() {
         <p className="text-xs md:text-sm text-gray-400 mb-2">
           Focus on the Pixels, not Megapixels
         </p>
-        <p className="text-xs text-gray-500">세상을 16비트 렌즈로 투영하다</p>
+        <p className="text-xs text-gray-500">See the world through a 16-bit lens</p>
       </div>
 
       {/* Upload Zone */}
@@ -158,8 +158,19 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="text-center mt-12 text-xs text-gray-500">
-        <p>Made with 💙 by BitLens</p>
-        <p className="mt-2">100% Client-side • No Server Needed</p>
+        <p className="mb-2">100% Client-side • No Server Needed</p>
+        <p className="mb-1">
+          Made by{' '}
+          <a
+            href="https://wooncloud.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-400 hover:text-blue-300 underline"
+          >
+            wooncloud
+          </a>
+        </p>
+        <p className="text-xs">© {new Date().getFullYear()} BitLens. All rights reserved.</p>
       </footer>
     </main>
   );
