@@ -6,6 +6,7 @@ import { Resolution, PaletteType, DitheringLevel } from '@/lib/types';
 import UploadZone from '@/components/UploadZone';
 import ResolutionSelector from '@/components/ResolutionSelector';
 import PaletteSelector from '@/components/PaletteSelector';
+import DitheringSelector from '@/components/DitheringSelector';
 
 export default function Home() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -106,43 +107,7 @@ export default function Home() {
             <div className="lg:col-span-1">
               <ResolutionSelector value={resolution} onChange={setResolution} />
               <PaletteSelector value={palette} onChange={setPalette} />
-
-              {/* Dithering Level */}
-              <div className="nes-container is-rounded with-title mb-6">
-                <p className="title text-xs">Dithering</p>
-                <div className="space-y-3">
-                  <label className="flex items-center cursor-pointer">
-                    <input
-                      type="radio"
-                      className="nes-radio"
-                      name="dithering"
-                      checked={dithering === 'none'}
-                      onChange={() => setDithering('none')}
-                    />
-                    <span className="text-xs ml-2">None</span>
-                  </label>
-                  <label className="flex items-center cursor-pointer">
-                    <input
-                      type="radio"
-                      className="nes-radio"
-                      name="dithering"
-                      checked={dithering === 'low'}
-                      onChange={() => setDithering('low')}
-                    />
-                    <span className="text-xs ml-2">Low</span>
-                  </label>
-                  <label className="flex items-center cursor-pointer">
-                    <input
-                      type="radio"
-                      className="nes-radio"
-                      name="dithering"
-                      checked={dithering === 'high'}
-                      onChange={() => setDithering('high')}
-                    />
-                    <span className="text-xs ml-2">High</span>
-                  </label>
-                </div>
-              </div>
+              <DitheringSelector value={dithering} onChange={setDithering} />
 
               <button
                 className="nes-btn is-success w-full text-xs mb-4"
