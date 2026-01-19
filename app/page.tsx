@@ -13,6 +13,7 @@ export default function Home() {
   const [pixelatedUrl, setPixelatedUrl] = useState<string>('');
   const [resolution, setResolution] = useState<Resolution>(128);
   const [palette, setPalette] = useState<PaletteType>('classic-grey');
+  const [dithering, setDithering] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const converterRef = useRef<PixelConverter | null>(null);
 
@@ -21,7 +22,7 @@ export default function Home() {
     converterRef.current = new PixelConverter();
   }, []);
 
-  // Process image whenever file, resolution, or palette changes
+  // Process image whenever file, resolution, palette, or dithering changes
   const processImage = useCallback(async () => {
     if (!selectedFile || !converterRef.current) return;
 
@@ -30,6 +31,7 @@ export default function Home() {
       const result = await converterRef.current.convertImage(selectedFile, {
         resolution,
         palette,
+        dithering,
       });
       setPixelatedUrl(result);
     } catch (error) {
@@ -38,7 +40,7 @@ export default function Home() {
     } finally {
       setIsProcessing(false);
     }
-  }, [selectedFile, resolution, palette]);
+  }, [selectedFile, resolution, palette, dithering]);
 
   useEffect(() => {
     if (selectedFile && converterRef.current) {
@@ -105,6 +107,20 @@ export default function Home() {
               <ResolutionSelector value={resolution} onChange={setResolution} />
               <PaletteSelector value={palette} onChange={setPalette} />
 
+              {/* Dithering Toggle */}
+              <div className="nes-container is-rounded with-title mb-6">
+                <p className="title text-xs">Dithering</p>
+                <label className="flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    className="nes-checkbox"
+                    checked={dithering}
+                    onChange={(e) => setDithering(e.target.checked)}
+                  />
+                  <span className="text-xs ml-2">Enable Floyd-Steinberg</span>
+                </label>
+              </div>
+
               <button
                 className="nes-btn is-success w-full text-xs mb-4"
                 onClick={handleDownload}
@@ -122,7 +138,7 @@ export default function Home() {
             <div className="lg:col-span-2">
               <div className="nes-container is-rounded with-title">
                 <p className="title text-xs">Preview</p>
-                <div className="flex justify-center items-center min-h-[400px] bg-black/20 rounded p-4">
+                <div className="flex justify-center items-center h-[400px] md:h-[600px] bg-black/20 rounded p-4">
                   {isProcessing ? (
                     <div className="text-center">
                       <p className="text-xs mb-2">Processing...</p>
@@ -132,7 +148,7 @@ export default function Home() {
                     <img
                       src={pixelatedUrl}
                       alt="Pixelated preview"
-                      className="pixelated max-w-full max-h-[600px] object-contain"
+                      className="pixelated w-full h-full object-contain"
                     />
                   ) : (
                     <p className="text-xs text-gray-400">Processing your image...</p>

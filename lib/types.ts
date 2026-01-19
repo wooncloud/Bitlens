@@ -11,4 +11,5 @@ export interface RGB {
 export interface ConversionOptions {
   resolution: Resolution;
   palette: PaletteType;
+  dithering: boolean;
 }
