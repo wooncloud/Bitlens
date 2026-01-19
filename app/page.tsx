@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { PixelConverter } from '@/lib/pixelConverter';
-import { Resolution, PaletteType } from '@/lib/types';
+import { Resolution, PaletteType, DitheringLevel } from '@/lib/types';
 import UploadZone from '@/components/UploadZone';
 import ResolutionSelector from '@/components/ResolutionSelector';
 import PaletteSelector from '@/components/PaletteSelector';
@@ -13,7 +13,7 @@ export default function Home() {
   const [pixelatedUrl, setPixelatedUrl] = useState<string>('');
   const [resolution, setResolution] = useState<Resolution>(128);
   const [palette, setPalette] = useState<PaletteType>('classic-grey');
-  const [dithering, setDithering] = useState(false);
+  const [dithering, setDithering] = useState<DitheringLevel>('none');
   const [isProcessing, setIsProcessing] = useState(false);
   const converterRef = useRef<PixelConverter | null>(null);
 
@@ -107,18 +107,41 @@ export default function Home() {
               <ResolutionSelector value={resolution} onChange={setResolution} />
               <PaletteSelector value={palette} onChange={setPalette} />
 
-              {/* Dithering Toggle */}
+              {/* Dithering Level */}
               <div className="nes-container is-rounded with-title mb-6">
                 <p className="title text-xs">Dithering</p>
-                <label className="flex items-center cursor-pointer">
-                  <input
-                    type="checkbox"
-                    className="nes-checkbox"
-                    checked={dithering}
-                    onChange={(e) => setDithering(e.target.checked)}
-                  />
-                  <span className="text-xs ml-2">Enable Floyd-Steinberg</span>
-                </label>
+                <div className="space-y-3">
+                  <label className="flex items-center cursor-pointer">
+                    <input
+                      type="radio"
+                      className="nes-radio"
+                      name="dithering"
+                      checked={dithering === 'none'}
+                      onChange={() => setDithering('none')}
+                    />
+                    <span className="text-xs ml-2">None</span>
+                  </label>
+                  <label className="flex items-center cursor-pointer">
+                    <input
+                      type="radio"
+                      className="nes-radio"
+                      name="dithering"
+                      checked={dithering === 'low'}
+                      onChange={() => setDithering('low')}
+                    />
+                    <span className="text-xs ml-2">Low</span>
+                  </label>
+                  <label className="flex items-center cursor-pointer">
+                    <input
+                      type="radio"
+                      className="nes-radio"
+                      name="dithering"
+                      checked={dithering === 'high'}
+                      onChange={() => setDithering('high')}
+                    />
+                    <span className="text-xs ml-2">High</span>
+                  </label>
+                </div>
               </div>
 
               <button

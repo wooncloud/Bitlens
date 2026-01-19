@@ -102,14 +102,17 @@ export class PixelConverter {
   /**
    * Apply color palette to image data (with optional Floyd-Steinberg dithering)
    */
-  private applyPalette(imageData: ImageData, paletteType: string, useDithering: boolean): string {
+  private applyPalette(imageData: ImageData, paletteType: string, ditheringLevel: string): string {
     const palette = PALETTES[paletteType as keyof typeof PALETTES];
     const data = imageData.data;
     const width = imageData.width;
     const height = imageData.height;
 
-    if (useDithering) {
-      // Floyd-Steinberg dithering
+    if (ditheringLevel !== 'none') {
+      // Determine dithering strength
+      const strength = ditheringLevel === 'low' ? 0.5 : 1.0;
+
+      // Floyd-Steinberg dithering with adjustable strength
       for (let y = 0; y < height; y++) {
         for (let x = 0; x < width; x++) {
           const i = (y * width + x) * 4;
@@ -131,15 +134,15 @@ export class PixelConverter {
           const errorG = oldColor.g - newColor.g;
           const errorB = oldColor.b - newColor.b;
 
-          // Distribute error to neighboring pixels
+          // Distribute error to neighboring pixels with strength multiplier
           // Right pixel (x+1, y): 7/16
-          this.distributeError(data, x + 1, y, width, height, errorR, errorG, errorB, 7 / 16);
+          this.distributeError(data, x + 1, y, width, height, errorR, errorG, errorB, (7 / 16) * strength);
           // Bottom-left pixel (x-1, y+1): 3/16
-          this.distributeError(data, x - 1, y + 1, width, height, errorR, errorG, errorB, 3 / 16);
+          this.distributeError(data, x - 1, y + 1, width, height, errorR, errorG, errorB, (3 / 16) * strength);
           // Bottom pixel (x, y+1): 5/16
-          this.distributeError(data, x, y + 1, width, height, errorR, errorG, errorB, 5 / 16);
+          this.distributeError(data, x, y + 1, width, height, errorR, errorG, errorB, (5 / 16) * strength);
           // Bottom-right pixel (x+1, y+1): 1/16
-          this.distributeError(data, x + 1, y + 1, width, height, errorR, errorG, errorB, 1 / 16);
+          this.distributeError(data, x + 1, y + 1, width, height, errorR, errorG, errorB, (1 / 16) * strength);
         }
       }
     } else {
