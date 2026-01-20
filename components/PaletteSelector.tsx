@@ -13,6 +13,8 @@ interface PaletteOption {
 const PALETTE_OPTIONS: PaletteOption[] = [
   { value: 'classic-grey', label: 'Classic Grey' },
   { value: 'gameboy', label: 'Game Boy' },
+  { value: 'retro-29', label: '29 Retro' },
+  { value: 'lospec-500', label: 'LOSPEC 500' },
   { value: 'retro-32', label: '32 Colors' },
   { value: 'retro-64', label: '64 Colors' },
   { value: 'retro-256', label: '256 Colors' },
