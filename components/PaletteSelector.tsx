@@ -18,6 +18,18 @@ const PALETTE_OPTIONS: PaletteOption[] = [
   { value: 'retro-32', label: '32 Colors' },
   { value: 'retro-64', label: '64 Colors' },
   { value: 'retro-256', label: '256 Colors' },
+  { value: 'lost-century', label: 'Lost Century' },
+  { value: 'slso8', label: 'SLSO8' },
+  { value: 'vinik24', label: 'VINIK24' },
+  { value: 'nature-31', label: 'Nature 31' },
+  { value: 'justparchment8', label: 'Just Parchment 8' },
+  { value: 'aap-64', label: 'AAP-64' },
+  { value: 'oil-6', label: 'Oil 6' },
+  { value: 'waldgeist', label: 'Waldgeist' },
+  { value: 'steam-lords', label: 'Steam Lords' },
+  { value: 'apollo', label: 'Apollo' },
+  { value: 'cl8uds', label: 'CL8UDS' },
+  { value: 'blk-nx64', label: 'BLK NX64' },
 ];
 
 export default function PaletteSelector({ value, onChange }: PaletteSelectorProps) {
